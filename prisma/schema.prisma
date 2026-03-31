@@ -1,0 +1,241 @@
+// SeasonX — Prisma Schema
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVOKED
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  HIDDEN
+}
+
+enum PurchaseStatus {
+  PENDING_PAYMENT
+  PAID
+  AWAITING_TRANSFER
+  TRANSFERRED
+  COMPLETED
+  DISPUTED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+enum Sport {
+  NFL
+  NBA
+  MLB
+  NHL
+  MLS
+  COLLEGE_FOOTBALL
+  COLLEGE_BASKETBALL
+  OTHER
+}
+
+enum TransferMethod {
+  UPLOAD
+  MOBILE_TRANSFER
+  WILL_CALL
+  FLASH_SEATS
+  OTHER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  role      UserRole @default(BUYER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sellerProfile    SellerProfile?
+  purchasesAsBuyer Purchase[]     @relation("BuyerPurchases")
+  listings         Listing[]
+  subscription     Subscription?
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model SellerProfile {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt         DateTime?
+  revokedAt          DateTime?
+  revokeReason       String?
+  bio                String?
+  totalSales         Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  verificationDocuments VerificationDocument[]
+  listings              Listing[]
+
+  @@index([verificationStatus])
+}
+
+model VerificationDocument {
+  id              String        @id @default(cuid())
+  sellerProfileId String
+  sellerProfile   SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  fileUrl         String
+  fileName        String
+  // "invoice" | "account_screenshot" | "ticket_account_id" | "other"
+  fileType        String
+  description     String?
+  uploadedAt      DateTime      @default(now())
+
+  @@index([sellerProfileId])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  status               SubscriptionStatus @default(TRIALING)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  trialEnd             DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model Listing {
+  id              String        @id @default(cuid())
+  sellerId        String
+  seller          User          @relation(fields: [sellerId], references: [id])
+  sellerProfileId String
+  sellerProfile   SellerProfile @relation(fields: [sellerProfileId], references: [id])
+
+  sport          Sport
+  homeTeam       String
+  awayTeam       String
+  venue          String?
+  eventDate      DateTime
+  eventName      String?
+
+  section        String
+  row            String?
+  seats          String[]
+  quantity       Int
+
+  pricePerTicket Float
+
+  transferMethod TransferMethod @default(UPLOAD)
+  notes          String?
+
+  status    ListingStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  expiresAt DateTime?
+
+  ticketAssets TicketAsset[]
+  purchases    Purchase[]
+
+  @@index([sport])
+  @@index([homeTeam])
+  @@index([eventDate])
+  @@index([status])
+  @@index([sellerId])
+}
+
+model TicketAsset {
+  id         String    @id @default(cuid())
+  listingId  String
+  listing    Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  purchaseId String?
+  purchase   Purchase? @relation(fields: [purchaseId], references: [id])
+  fileUrl    String
+  fileName   String
+  seatLabel  String?
+  uploadedAt DateTime  @default(now())
+
+  @@index([listingId])
+  @@index([purchaseId])
+}
+
+model Purchase {
+  id        String @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+  buyerId   String
+  buyer     User   @relation("BuyerPurchases", fields: [buyerId], references: [id])
+
+  quantity       Int
+  pricePerTicket Float
+  subtotal       Float
+  buyerFee       Float
+  total          Float
+
+  stripePaymentIntentId String? @unique
+  stripeSessionId       String? @unique
+
+  status PurchaseStatus @default(PENDING_PAYMENT)
+
+  transferredAt    DateTime?
+  transferNotes    String?
+  buyerConfirmedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ticketAssets TicketAsset[]
+  dispute      Dispute?
+
+  @@index([buyerId])
+  @@index([listingId])
+  @@index([status])
+}
+
+model Dispute {
+  id         String   @id @default(cuid())
+  purchaseId String   @unique
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  reason     String
+  description String?
+  // OPEN | RESOLVED | CLOSED
+  status     String   @default("OPEN")
+  resolvedAt DateTime?
+  resolution String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
