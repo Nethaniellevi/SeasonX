@@ -4,6 +4,7 @@ import { HeroGradient } from "@/components/hero-gradient";
 import { HeroFloatingTickets } from "@/components/hero-floating-tickets";
 import { TicketCard } from "@/components/ticket-card";
 import { WaitlistForm } from "@/components/waitlist-form";
+import { HeroSearch } from "@/components/hero-search";
 import { getWaitlistCount } from "@/app/actions/waitlist-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateShort, SPORTS_LABELS } from "@/lib/utils";
@@ -75,31 +76,7 @@ export default async function HomePage() {
             Pay just 3% — not 25%.
           </p>
 
-          {/* Airbnb-style pill search bar */}
-          <div className="flex items-center bg-white rounded-full border border-[#DDDDDD] shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto mb-12 overflow-hidden">
-            <div className="flex-1 flex items-center gap-0 min-w-0">
-              <div className="flex-1 px-6 py-4 text-left">
-                <p className="text-xs font-semibold text-[#222222] mb-0.5">Sport</p>
-                <p className="text-sm text-[#717171]">Any sport</p>
-              </div>
-              <div className="w-px h-10 bg-[#DDDDDD] flex-shrink-0" />
-              <div className="flex-1 px-6 py-4 text-left">
-                <p className="text-xs font-semibold text-[#222222] mb-0.5">Date</p>
-                <p className="text-sm text-[#717171]">Any time</p>
-              </div>
-              <div className="w-px h-10 bg-[#DDDDDD] flex-shrink-0" />
-              <div className="flex-1 px-6 py-4 text-left">
-                <p className="text-xs font-semibold text-[#222222] mb-0.5">Team</p>
-                <p className="text-sm text-[#717171]">Search...</p>
-              </div>
-            </div>
-            <Link
-              href="/marketplace"
-              className="bg-team-primary hover:bg-team-primary-hover text-white font-semibold text-sm rounded-full px-6 py-4 flex-shrink-0 mx-2 transition-colors"
-            >
-              Search
-            </Link>
-          </div>
+          <HeroSearch />
 
           {/* Sport category pills */}
           <div className="flex flex-wrap gap-3 justify-center">
