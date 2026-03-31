@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { approveVerification, rejectVerification } from "@/app/actions/admin-actions";
 
 interface Props {
@@ -40,53 +38,49 @@ export function AdminVerificationActions({ profileId }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-3 md:w-56 flex-shrink-0">
-      {error && <p className="text-xs text-red-600">{error}</p>}
+    <div className="flex flex-col gap-3 md:w-52 flex-shrink-0">
+      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
 
       {!rejecting ? (
         <>
-          <Button
-            variant="success"
-            loading={loading}
-            className="w-full"
-            onClick={handleApprove}
-          >
-            Approve
-          </Button>
-          <Button
-            variant="destructive"
+          <button
             disabled={loading}
-            className="w-full"
+            onClick={handleApprove}
+            className="w-full bg-team-primary hover:bg-team-primary-hover disabled:opacity-50 text-white font-semibold text-sm py-3 rounded-full transition-colors"
+          >
+            {loading ? "Processing..." : "Approve"}
+          </button>
+          <button
+            disabled={loading}
             onClick={() => setRejecting(true)}
+            className="w-full border border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 disabled:opacity-50 font-semibold text-sm py-3 rounded-full transition-all bg-white"
           >
             Reject
-          </Button>
+          </button>
         </>
       ) : (
         <>
-          <Textarea
+          <textarea
             placeholder="Reason for rejection (optional, emailed to seller)"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            className="text-sm"
+            className="w-full bg-white border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm text-[#222222] placeholder-[#BBBBBB] outline-none focus:border-[#222222] resize-none transition-colors"
           />
-          <Button
-            variant="destructive"
-            loading={loading}
-            className="w-full"
-            onClick={handleReject}
-          >
-            Confirm Rejection
-          </Button>
-          <Button
-            variant="ghost"
+          <button
             disabled={loading}
-            className="w-full"
+            onClick={handleReject}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold text-sm py-3 rounded-full transition-colors"
+          >
+            {loading ? "Processing..." : "Confirm rejection"}
+          </button>
+          <button
+            disabled={loading}
             onClick={() => { setRejecting(false); setReason(""); }}
+            className="w-full text-[#717171] hover:text-[#222222] font-semibold text-sm py-2 transition-colors"
           >
             Cancel
-          </Button>
+          </button>
         </>
       )}
     </div>

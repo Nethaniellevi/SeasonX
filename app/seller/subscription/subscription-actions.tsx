@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { startSubscription, cancelSubscription, reactivateSubscription } from "@/app/actions/subscription-actions";
 
 interface Props {
@@ -31,15 +30,14 @@ export function SubscriptionActions({ subscriptionId, cancelAtPeriodEnd, custome
   if (!subscriptionId) {
     return (
       <div className="space-y-3">
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <Button
-          loading={loading}
-          className="w-full"
-          size="lg"
+        {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+        <button
+          disabled={loading}
+          className="w-full bg-team-primary hover:bg-team-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm py-4 rounded-full transition-colors"
           onClick={() => handleAction(startSubscription)}
         >
-          Start 14-Day Free Trial
-        </Button>
+          {loading ? "Processing..." : "Start 14-day free trial"}
+        </button>
       </div>
     );
   }
@@ -47,31 +45,29 @@ export function SubscriptionActions({ subscriptionId, cancelAtPeriodEnd, custome
   if (cancelAtPeriodEnd) {
     return (
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">Your subscription will be canceled at period end.</p>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <Button
-          variant="outline"
-          loading={loading}
-          className="w-full"
+        <p className="text-sm text-[#717171]">Your subscription will be canceled at period end.</p>
+        {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+        <button
+          disabled={loading}
+          className="w-full border border-[#DDDDDD] hover:border-[#222222] hover:text-[#222222] text-[#717171] disabled:opacity-50 font-semibold text-sm py-3.5 rounded-full transition-all bg-white"
           onClick={() => handleAction(() => reactivateSubscription(subscriptionId))}
         >
-          Reactivate Subscription
-        </Button>
+          {loading ? "Processing..." : "Reactivate subscription"}
+        </button>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <Button
-        variant="outline"
-        loading={loading}
-        className="w-full text-red-600 border-red-200 hover:bg-red-50"
+      {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+      <button
+        disabled={loading}
+        className="w-full border border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 disabled:opacity-50 font-semibold text-sm py-3.5 rounded-full transition-all bg-white"
         onClick={() => handleAction(() => cancelSubscription(subscriptionId))}
       >
-        Cancel Subscription
-      </Button>
+        {loading ? "Processing..." : "Cancel subscription"}
+      </button>
     </div>
   );
 }

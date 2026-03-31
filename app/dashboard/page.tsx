@@ -1,15 +1,10 @@
 import { redirect } from "next/navigation";
 import { getOrCreateUser } from "@/lib/auth";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateShort } from "@/lib/utils";
-import {
-  ShieldCheck, Ticket, ShoppingBag, Plus, ArrowRight, Clock
-} from "lucide-react";
+import { ShieldCheck, Ticket, ShoppingBag, Plus, ArrowRight, Clock } from "lucide-react";
 
 export const metadata = { title: "Dashboard" };
 
@@ -17,7 +12,6 @@ export default async function DashboardPage() {
   const user = await getOrCreateUser();
   if (!user) redirect("/sign-in");
 
-  // Recent purchases as buyer
   const recentPurchases = await prisma.purchase.findMany({
     where: { buyerId: user.id },
     include: {
@@ -30,153 +24,142 @@ export default async function DashboardPage() {
   const isVerifiedSeller = user.sellerProfile?.verificationStatus === "APPROVED";
   const isPendingVerification = user.sellerProfile?.verificationStatus === "PENDING";
 
+  const statusColor: Record<string, string> = {
+    COMPLETED: "text-team-primary bg-team-subtle",
+    TRANSFERRED: "text-blue-600 bg-blue-50",
+    DISPUTED: "text-red-600 bg-red-50",
+    AWAITING_TRANSFER: "text-amber-600 bg-amber-50",
+  };
+
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">
-            Hello, {user.name?.split(" ")[0] ?? "there"} 👋
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        {/* Header */}
+        <div className="mb-10 pb-6 border-b border-[#DDDDDD]">
+          <h1 className="text-3xl font-semibold text-[#222222] mb-1">
+            Welcome back, {user.name?.split(" ")[0] ?? "there"}
           </h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-1">
             {isVerifiedSeller && <VerifiedBadge size="sm" />}
-            <span className="text-muted-foreground text-sm">{user.email}</span>
+            <span className="text-[#717171] text-sm">{user.email}</span>
           </div>
         </div>
-      </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-        <Card className="hover:border-blue-300 transition-colors">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
-              <Ticket className="h-5 w-5 text-blue-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Browse Tickets</p>
-              <p className="text-xs text-muted-foreground">Find verified listings</p>
-            </div>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/marketplace"><ArrowRight className="h-4 w-4" /></Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {isVerifiedSeller ? (
-          <>
-            <Card className="hover:border-blue-300 transition-colors">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 p-3">
-                  <Plus className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">New Listing</p>
-                  <p className="text-xs text-muted-foreground">Sell your tickets</p>
-                </div>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/seller/listings/new"><ArrowRight className="h-4 w-4" /></Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:border-blue-300 transition-colors">
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-3">
-                  <ShoppingBag className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">Seller Dashboard</p>
-                  <p className="text-xs text-muted-foreground">Manage your listings</p>
-                </div>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/seller/dashboard"><ArrowRight className="h-4 w-4" /></Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </>
-        ) : isPendingVerification ? (
-          <Card className="sm:col-span-2 border-amber-200 bg-amber-50 dark:bg-amber-900/10">
-            <CardContent className="p-5 flex items-center gap-3">
-              <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
-              <div>
-                <p className="font-semibold text-sm text-amber-800 dark:text-amber-200">
-                  Verification Under Review
-                </p>
-                <p className="text-xs text-amber-700 dark:text-amber-300">
-                  We're reviewing your documents (1–2 business days)
-                </p>
+        {/* Quick actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          <Link href="/marketplace">
+            <div className="rounded-2xl border border-[#DDDDDD] p-5 bg-white hover:shadow-lg transition-shadow flex items-center gap-4 group cursor-pointer">
+              <div className="rounded-xl bg-[#F7F7F7] p-3 flex-shrink-0">
+                <Ticket className="h-5 w-5 text-[#222222]" />
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="sm:col-span-2 hover:border-blue-300 transition-colors">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
-                <ShieldCheck className="h-5 w-5 text-blue-600" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-[#222222]">Browse tickets</p>
+                <p className="text-xs text-[#717171]">Find verified listings</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-[#DDDDDD] group-hover:text-[#222222] transition-colors" />
+            </div>
+          </Link>
+
+          {isVerifiedSeller ? (
+            <>
+              <Link href="/seller/listings/new">
+                <div className="rounded-2xl border border-[#DDDDDD] p-5 bg-white hover:shadow-lg transition-shadow flex items-center gap-4 group cursor-pointer">
+                  <div className="rounded-xl bg-[#F7F7F7] p-3 flex-shrink-0">
+                    <Plus className="h-5 w-5 text-[#222222]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-[#222222]">New listing</p>
+                    <p className="text-xs text-[#717171]">Sell your tickets</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-[#DDDDDD] group-hover:text-[#222222] transition-colors" />
+                </div>
+              </Link>
+
+              <Link href="/seller/dashboard">
+                <div className="rounded-2xl border border-[#DDDDDD] p-5 bg-white hover:shadow-lg transition-shadow flex items-center gap-4 group cursor-pointer">
+                  <div className="rounded-xl bg-[#F7F7F7] p-3 flex-shrink-0">
+                    <ShoppingBag className="h-5 w-5 text-[#222222]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-[#222222]">Seller dashboard</p>
+                    <p className="text-xs text-[#717171]">Manage listings</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-[#DDDDDD] group-hover:text-[#222222] transition-colors" />
+                </div>
+              </Link>
+            </>
+          ) : isPendingVerification ? (
+            <div className="sm:col-span-2 rounded-2xl border border-amber-200 p-5 bg-amber-50 flex items-center gap-3">
+              <Clock className="h-5 w-5 text-amber-500 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-amber-800">Verification under review</p>
+                <p className="text-xs text-amber-600">We&apos;re reviewing your documents (1–2 business days)</p>
+              </div>
+            </div>
+          ) : (
+            <div className="sm:col-span-2 rounded-2xl border border-[#DDDDDD] p-5 bg-white flex items-center gap-4">
+              <div className="rounded-xl bg-[#F7F7F7] p-3 flex-shrink-0">
+                <ShieldCheck className="h-5 w-5 text-team-primary" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm">Become a Verified Seller</p>
-                <p className="text-xs text-muted-foreground">0% fees · $50/month · 14-day trial</p>
+                <p className="font-semibold text-sm text-[#222222]">Become a verified seller</p>
+                <p className="text-xs text-[#717171]">0% fees · $50/month · 14-day free trial</p>
               </div>
-              <Button size="sm" asChild>
-                <Link href="/seller/verify">Get Verified</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              <Link
+                href="/seller/verify"
+                className="bg-team-primary hover:bg-team-primary-hover text-white font-semibold text-xs px-4 py-2.5 rounded-full transition-colors flex-shrink-0"
+              >
+                Get verified
+              </Link>
+            </div>
+          )}
+        </div>
 
-      {/* Recent purchases */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-lg">Recent Purchases</CardTitle>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/purchases">View All <ArrowRight className="h-3.5 w-3.5" /></Link>
-          </Button>
-        </CardHeader>
-        <CardContent className="p-0">
+        {/* Recent purchases */}
+        <div className="rounded-2xl border border-[#DDDDDD] bg-white overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#DDDDDD]">
+            <h2 className="font-semibold text-[#222222]">Recent purchases</h2>
+            <Link href="/purchases" className="text-sm text-[#717171] hover:text-[#222222] underline flex items-center gap-1 transition-colors">
+              View all <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+
           {recentPurchases.length === 0 ? (
-            <div className="px-6 pb-6 text-center text-muted-foreground text-sm">
-              No purchases yet.{" "}
-              <Link href="/marketplace" className="text-blue-600 hover:underline">
+            <div className="px-6 py-16 text-center">
+              <p className="text-2xl mb-3">🎟️</p>
+              <p className="text-[#717171] text-sm mb-3">No purchases yet.</p>
+              <Link href="/marketplace" className="text-sm font-semibold text-[#222222] underline hover:no-underline">
                 Browse tickets
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-[#DDDDDD]">
               {recentPurchases.map((purchase) => (
                 <Link
                   key={purchase.id}
                   href={`/purchases/${purchase.id}`}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between px-6 py-4 hover:bg-[#F7F7F7] transition-colors"
                 >
                   <div>
-                    <p className="font-medium text-sm">
+                    <p className="font-semibold text-sm text-[#222222]">
                       {purchase.listing.homeTeam} vs {purchase.listing.awayTeam}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[#717171]">
                       {formatDateShort(purchase.listing.eventDate)} · {purchase.quantity} ticket{purchase.quantity > 1 ? "s" : ""}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-sm">{formatCurrency(purchase.total)}</p>
-                    <Badge
-                      variant={
-                        purchase.status === "COMPLETED" ? "success" :
-                        purchase.status === "DISPUTED" ? "destructive" :
-                        purchase.status === "TRANSFERRED" ? "default" :
-                        "warning"
-                      }
-                      className="text-xs"
-                    >
+                    <p className="font-semibold text-sm text-[#222222]">{formatCurrency(purchase.total)}</p>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor[purchase.status] ?? "text-[#717171] bg-[#F7F7F7]"}`}>
                       {purchase.status.replace(/_/g, " ")}
-                    </Badge>
+                    </span>
                   </div>
                 </Link>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

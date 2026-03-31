@@ -1,40 +1,71 @@
 @import "tailwindcss";
 
-/*
- * Tailwind v4: Define semantic color tokens via @theme.
- * This generates bg-background, text-foreground, border-border, etc. automatically.
- */
 @theme inline {
-  --color-background: oklch(100% 0 0);
-  --color-foreground: oklch(17% 0.034 264);
-  --color-card: oklch(100% 0 0);
-  --color-card-foreground: oklch(17% 0.034 264);
-  --color-popover: oklch(100% 0 0);
-  --color-popover-foreground: oklch(17% 0.034 264);
-  --color-primary: oklch(58% 0.2 264);
-  --color-primary-foreground: oklch(98% 0.01 264);
-  --color-secondary: oklch(96% 0.01 264);
-  --color-secondary-foreground: oklch(22% 0.034 264);
-  --color-muted: oklch(96% 0.01 264);
-  --color-muted-foreground: oklch(55% 0.02 264);
-  --color-accent: oklch(96% 0.01 264);
-  --color-accent-foreground: oklch(22% 0.034 264);
-  --color-destructive: oklch(62% 0.22 26);
-  --color-destructive-foreground: oklch(98% 0.01 264);
-  --color-border: oklch(91% 0.01 264);
-  --color-input: oklch(91% 0.01 264);
-  --color-ring: oklch(58% 0.2 264);
+  --color-background: #FFFFFF;
+  --color-foreground: #222222;
+  --color-card: #ffffff;
+  --color-card-foreground: #222222;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #222222;
+  --color-primary: #09B43A;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #F7F7F7;
+  --color-secondary-foreground: #222222;
+  --color-muted: #F7F7F7;
+  --color-muted-foreground: #717171;
+  --color-accent: #F7F7F7;
+  --color-accent-foreground: #222222;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #DDDDDD;
+  --color-input: #ffffff;
+  --color-ring: #09B43A;
 }
 
-/* Dark mode overrides using CSS custom properties */
 :root {
-  color-scheme: light dark;
+  --team-primary: #09B43A;
+  --team-primary-hover: #00A032;
+  --team-primary-subtle: rgba(9, 180, 58, 0.1);
+  --team-primary-border: rgba(9, 180, 58, 0.2);
+  --team-on-primary: #ffffff;
+  --team-name: "SeasonX";
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: var(--float-base) translateY(0px); }
+  50%       { transform: var(--float-base) translateY(-10px); }
+}
+
+@utility text-team-primary {
+  color: var(--team-primary);
+}
+@utility bg-team-primary {
+  background-color: var(--team-primary);
+}
+@utility bg-team-primary-hover {
+  background-color: var(--team-primary-hover);
+}
+@utility bg-team-subtle {
+  background-color: var(--team-primary-subtle);
+}
+@utility border-team-primary {
+  border-color: var(--team-primary);
+}
+@utility border-team-subtle {
+  border-color: var(--team-primary-border);
 }
 
 @layer base {
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: #FFFFFF;
+    color: #222222;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    transition-property: color, background-color, border-color;
+    transition-duration: 300ms;
+  }
+
+  *:focus-visible {
+    outline-color: var(--team-primary);
   }
 }

@@ -2,12 +2,9 @@ import { redirect } from "next/navigation";
 import { getOrCreateUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { formatCurrency, formatDateShort, SPORTS_LABELS } from "@/lib/utils";
-import { Plus, Settings, TrendingUp, ShieldCheck } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 
 export const metadata = { title: "Seller Dashboard" };
 
@@ -44,143 +41,152 @@ export default async function SellerDashboardPage() {
   const subscription = user.subscription;
   const subStatus = subscription?.status;
 
+  const orderStatusStyle: Record<string, string> = {
+    COMPLETED: "text-team-primary bg-team-subtle",
+    TRANSFERRED: "text-blue-600 bg-blue-50",
+    DISPUTED: "text-red-600 bg-red-50",
+    AWAITING_TRANSFER: "text-amber-600 bg-amber-50",
+  };
+
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-1">Seller Dashboard</h1>
-          <VerifiedBadge size="md" />
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10 pb-6 border-b border-[#DDDDDD]">
+          <div>
+            <h1 className="text-3xl font-semibold text-[#222222] mb-2">Seller dashboard</h1>
+            <VerifiedBadge size="md" />
+          </div>
+          <div className="flex gap-3">
+            <Link
+              href="/seller/subscription"
+              className="flex items-center gap-2 border border-[#DDDDDD] bg-white rounded-full px-4 py-2.5 text-sm font-semibold text-[#717171] hover:text-[#222222] hover:border-[#222222] transition-all"
+            >
+              <Settings className="h-4 w-4" /> Subscription
+            </Link>
+            <Link
+              href="/seller/listings/new"
+              className="flex items-center gap-2 bg-team-primary hover:bg-team-primary-hover text-white font-semibold text-sm px-4 py-2.5 rounded-full transition-colors"
+            >
+              <Plus className="h-4 w-4" /> New listing
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" asChild>
-            <Link href="/seller/subscription"><Settings className="h-4 w-4" /> Subscription</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/seller/listings/new"><Plus className="h-4 w-4" /> New Listing</Link>
-          </Button>
+
+        {/* Subscription alert */}
+        {subStatus && !["TRIALING", "ACTIVE"].includes(subStatus) && (
+          <div className="mb-8 p-4 rounded-2xl border border-red-200 bg-red-50 text-red-700 text-sm font-semibold">
+            Your subscription is {subStatus.toLowerCase().replace(/_/g, " ")}. Your listings are hidden.{" "}
+            <Link href="/seller/subscription" className="underline">Update billing</Link>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: "Active listings", value: activeListings.length },
+            { label: "Total sales", value: user.sellerProfile.totalSales },
+            { label: "Tickets sold", value: soldListings.length },
+            { label: "Revenue", value: formatCurrency(totalRevenue) },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-2xl border border-[#DDDDDD] p-5 bg-white text-center">
+              <p className="text-3xl font-semibold text-[#222222] mb-1">{value}</p>
+              <p className="text-xs text-[#717171]">{label}</p>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* Subscription status alert */}
-      {subStatus && !["TRIALING", "ACTIVE"].includes(subStatus) && (
-        <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-200 text-red-800 dark:text-red-200 text-sm">
-          ⚠️ Your subscription is {subStatus.toLowerCase().replace(/_/g, " ")}.
-          Your listings are hidden.{" "}
-          <Link href="/seller/subscription" className="font-semibold underline">
-            Update billing
-          </Link>
-        </div>
-      )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Listings */}
+          <div className="rounded-2xl border border-[#DDDDDD] bg-white overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#DDDDDD]">
+              <h2 className="font-semibold text-[#222222]">My listings</h2>
+              <Link href="/seller/listings" className="text-sm text-[#717171] hover:text-[#222222] underline transition-colors">
+                View all
+              </Link>
+            </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "Active Listings", value: activeListings.length, icon: ShieldCheck, color: "text-blue-600" },
-          { label: "Total Sales", value: user.sellerProfile.totalSales, icon: TrendingUp, color: "text-emerald-600" },
-          { label: "Tickets Sold", value: soldListings.length, icon: ShieldCheck, color: "text-purple-600" },
-          { label: "Revenue (approx)", value: formatCurrency(totalRevenue), icon: TrendingUp, color: "text-amber-600" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <Card key={label}>
-            <CardContent className="p-5">
-              <Icon className={`h-5 w-5 ${color} mb-2`} />
-              <p className="text-2xl font-black">{value}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Listings */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-base">My Listings</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/seller/listings">View All</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
             {listings.length === 0 ? (
-              <div className="px-6 pb-6 text-center">
-                <p className="text-sm text-muted-foreground mb-3">No listings yet</p>
-                <Button size="sm" asChild>
-                  <Link href="/seller/listings/new"><Plus className="h-4 w-4" /> Create Listing</Link>
-                </Button>
+              <div className="px-6 py-16 text-center">
+                <p className="text-2xl mb-3">🎟️</p>
+                <p className="text-sm text-[#717171] mb-4">No listings yet</p>
+                <Link
+                  href="/seller/listings/new"
+                  className="inline-flex items-center gap-2 bg-team-primary hover:bg-team-primary-hover text-white font-semibold text-sm px-4 py-2.5 rounded-full transition-colors"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Create listing
+                </Link>
               </div>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-[#DDDDDD]">
                 {listings.slice(0, 5).map((listing) => (
-                  <div key={listing.id} className="flex items-center justify-between px-6 py-3">
+                  <div key={listing.id} className="flex items-center justify-between px-6 py-4">
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">
+                      <p className="font-semibold text-sm text-[#222222] truncate">
                         {listing.homeTeam} vs {listing.awayTeam}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#717171]">
                         {formatDateShort(listing.eventDate)} · {SPORTS_LABELS[listing.sport]}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                      <span className="text-sm font-bold">{formatCurrency(listing.pricePerTicket)}</span>
-                      <Badge
-                        variant={listing.status === "ACTIVE" ? "success" : listing.status === "SOLD" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
+                    <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+                      <span className="font-semibold text-sm text-[#222222]">{formatCurrency(listing.pricePerTicket)}</span>
+                      <span className={`text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full ${
+                        listing.status === "ACTIVE" ? "text-team-primary bg-team-subtle" :
+                        listing.status === "SOLD" ? "text-blue-600 bg-blue-50" :
+                        "text-[#717171] bg-[#F7F7F7]"
+                      }`}>
                         {listing.status}
-                      </Badge>
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Recent orders */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-base">Recent Orders</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/seller/orders">View All</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
+          {/* Recent orders */}
+          <div className="rounded-2xl border border-[#DDDDDD] bg-white overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#DDDDDD]">
+              <h2 className="font-semibold text-[#222222]">Recent orders</h2>
+              <Link href="/seller/orders" className="text-sm text-[#717171] hover:text-[#222222] underline transition-colors">
+                View all
+              </Link>
+            </div>
+
             {recentOrders.length === 0 ? (
-              <p className="px-6 pb-6 text-sm text-muted-foreground text-center">No orders yet</p>
+              <div className="px-6 py-16 text-center">
+                <p className="text-2xl mb-3">📦</p>
+                <p className="text-sm text-[#717171]">No orders yet</p>
+              </div>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-[#DDDDDD]">
                 {recentOrders.map((order) => (
                   <Link
                     key={order.id}
                     href={`/seller/orders/${order.id}`}
-                    className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between px-6 py-4 hover:bg-[#F7F7F7] transition-colors"
                   >
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">
+                      <p className="font-semibold text-sm text-[#222222] truncate">
                         {order.listing.homeTeam} vs {order.listing.awayTeam}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#717171]">
                         {order.buyer.name} · {order.quantity} ticket{order.quantity > 1 ? "s" : ""}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                      <span className="text-sm font-bold">{formatCurrency(order.subtotal)}</span>
-                      <Badge
-                        variant={
-                          order.status === "COMPLETED" ? "success" :
-                          order.status === "DISPUTED" ? "destructive" :
-                          order.status === "AWAITING_TRANSFER" ? "warning" : "secondary"
-                        }
-                        className="text-xs"
-                      >
+                    <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+                      <span className="font-semibold text-sm text-[#222222]">{formatCurrency(order.subtotal)}</span>
+                      <span className={`text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full ${orderStatusStyle[order.status] ?? "text-[#717171] bg-[#F7F7F7]"}`}>
                         {order.status.replace(/_/g, " ")}
-                      </Badge>
+                      </span>
                     </div>
                   </Link>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

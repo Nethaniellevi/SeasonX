@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { createCheckoutSession } from "@/app/actions/purchase-actions";
 import { formatCurrency, calculateTotal } from "@/lib/utils";
 
@@ -32,19 +31,19 @@ export function BuyTicketsButton({ listingId, quantity, pricePerTicket }: Props)
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {quantity > 1 && (
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Quantity</label>
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-[#717171] uppercase tracking-wider">Quantity</p>
           <div className="flex gap-2 flex-wrap">
             {Array.from({ length: quantity }, (_, i) => i + 1).map((q) => (
               <button
                 key={q}
                 onClick={() => setSelectedQty(q)}
-                className={`w-10 h-10 rounded-lg text-sm font-semibold border transition-colors ${
+                className={`w-10 h-10 rounded-xl text-sm font-semibold border transition-all ${
                   selectedQty === q
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-border hover:border-blue-400"
+                    ? "bg-[#222222] text-white border-[#222222]"
+                    : "border-[#DDDDDD] text-[#717171] hover:border-[#222222] hover:text-[#222222] bg-white"
                 }`}
               >
                 {q}
@@ -55,17 +54,19 @@ export function BuyTicketsButton({ listingId, quantity, pricePerTicket }: Props)
       )}
 
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-500 font-medium">{error}</p>
       )}
 
-      <Button
+      <button
         onClick={handleBuy}
-        loading={loading}
-        className="w-full"
-        size="lg"
+        disabled={loading}
+        className="w-full bg-team-primary hover:bg-team-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm py-4 rounded-xl transition-colors"
       >
-        Buy {selectedQty} Ticket{selectedQty > 1 ? "s" : ""} — {formatCurrency(total)}
-      </Button>
+        {loading
+          ? "Processing..."
+          : `Reserve ${selectedQty} ticket${selectedQty > 1 ? "s" : ""} · ${formatCurrency(total)}`
+        }
+      </button>
     </div>
   );
 }

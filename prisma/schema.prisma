@@ -226,6 +226,17 @@ model Purchase {
   @@index([status])
 }
 
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  type      String   @default("GENERAL") // BUYER | SELLER | GENERAL
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([type])
+}
+
 model Dispute {
   id         String   @id @default(cuid())
   purchaseId String   @unique
