@@ -5,7 +5,7 @@ import { joinWaitlist } from "@/app/actions/waitlist-actions";
 import { Check } from "lucide-react";
 
 export function WaitlistForm() {
-  const [type, setType] = useState<"BUYER" | "SELLER">("BUYER");
+  const [type, setType] = useState<"BUYER" | "SELLER">("SELLER");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);

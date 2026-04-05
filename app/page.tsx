@@ -66,14 +66,20 @@ export default async function HomePage() {
         <HeroGradient />
         <HeroFloatingTickets />
         <div className="relative z-10 mx-auto max-w-3xl">
+          {/* Pre-launch seller badge */}
+          <div className="inline-flex items-center gap-2 bg-white border border-[#DDDDDD] rounded-full px-4 py-2 text-xs font-semibold text-[#717171] mb-8 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-team-primary animate-pulse" />
+            Now recruiting verified sellers — list your tickets free
+          </div>
+
           <h1 className="text-4xl md:text-6xl font-semibold leading-[1.1] text-[#222222] mb-5 tracking-tight">
-            Find verified tickets<br />
-            <span className="text-team-primary">from real fans.</span>
+            Stop giving StubHub<br />
+            <span className="text-team-primary">15% of your tickets.</span>
           </h1>
 
           <p className="text-[#717171] text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-            Every seller is a manually verified season ticket holder.
-            Pay just 3% — not 25%.
+            SeasonX is the ticket marketplace built for season ticket holders.
+            List your games for free. Buyers pay just 3% — not 25%.
           </p>
 
           <HeroSearch />
@@ -98,20 +104,20 @@ export default async function HomePage() {
       <section className="border-y border-[#DDDDDD] px-6 py-5 bg-white">
         <div className="mx-auto max-w-4xl flex flex-wrap gap-6 justify-center items-center text-sm text-[#717171]">
           <span className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-team-primary" />
-            100% verified sellers
+            <Check className="h-4 w-4 text-team-primary" />
+            $0 per-ticket seller fees
           </span>
           <span className="flex items-center gap-2">
             <Star className="h-4 w-4 text-team-primary" fill="currentColor" />
-            Only 3% buyer fee
-          </span>
-          <span className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-team-primary" />
-            $0 seller fees
+            Buyers pay only 3%
           </span>
           <span className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-team-primary" />
-            Secure Stripe checkout
+            Verified STHs only
+          </span>
+          <span className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-team-primary" />
+            Free during beta
           </span>
         </div>
       </section>
@@ -199,45 +205,45 @@ export default async function HomePage() {
       <section className="px-6 py-20 bg-white">
         <div className="mx-auto max-w-2xl">
           <div className="bg-[#222222] rounded-3xl p-12 text-center text-white">
-            <p className="text-xs font-semibold uppercase tracking-widest text-team-primary mb-4">For season ticket holders</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-team-primary mb-4">Season ticket holders</p>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">
-              Sell for $50/month.<br />Keep everything.
+              Your tickets.<br />Your price. Keep it all.
             </h2>
-            <p className="text-[#717171] mb-8 leading-relaxed">
-              StubHub takes 10–15% per ticket. We take $0 per ticket — just $50/month flat.
-              14-day free trial included.
+            <p className="text-[#AAAAAA] mb-8 leading-relaxed">
+              StubHub takes 15% of every sale. SeasonX charges $0 per ticket.
+              We&apos;re onboarding verified STHs now — be first in your market.
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center mb-8">
-              {["0% seller fees", "Unlimited listings", "14-day free trial", "Cancel anytime"].map((f) => (
+              {["$0 per-ticket fees", "Free during beta", "Unlimited listings", "Cancel anytime"].map((f) => (
                 <span key={f} className="flex items-center gap-1.5 text-sm text-[#AAAAAA]">
                   <Check className="h-4 w-4 text-team-primary" />{f}
                 </span>
               ))}
             </div>
             <Link
-              href="/seller/verify"
+              href="#waitlist"
               className="inline-flex items-center gap-2 bg-team-primary hover:bg-team-primary-hover text-white font-semibold rounded-full px-8 py-3.5 transition-colors"
             >
-              Start free trial <ArrowRight className="h-4 w-4" />
+              Join as a seller <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Waitlist */}
-      <section className="border-t border-[#DDDDDD] bg-[#F7F7F7] px-6 py-20">
+      <section id="waitlist" className="border-t border-[#DDDDDD] bg-[#F7F7F7] px-6 py-20">
         <div className="mx-auto max-w-xl text-center">
           {waitlistCount > 0 && (
             <div className="inline-flex items-center gap-2 bg-white border border-[#DDDDDD] rounded-full px-4 py-2 text-xs font-semibold text-[#717171] mb-6">
               <span className="w-2 h-2 rounded-full bg-team-primary animate-pulse" />
-              {waitlistCount.toLocaleString()} {waitlistCount === 1 ? "person" : "people"} already joined
+              {waitlistCount.toLocaleString()} season ticket holders already joined
             </div>
           )}
           <h2 className="text-3xl font-semibold text-[#222222] mb-3 tracking-tight">
-            Be first when we launch
+            Season ticket holder?<br />List your tickets first.
           </h2>
           <p className="text-[#717171] mb-10 leading-relaxed">
-            Join the waitlist and get early access to verified tickets from real season ticket holders.
+            We&apos;re onboarding verified sellers before we open to buyers — so you&apos;ll have real demand from day one. Join free, list immediately.
           </p>
           <WaitlistForm />
         </div>
